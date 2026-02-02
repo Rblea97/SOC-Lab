@@ -1,0 +1,19 @@
+<!-- Handles MS-2 sysklogd stripped format: sshd[pid]: message
+     (no RFC 3164 timestamp/hostname prefix) -->
+<decoder name="sshd-stripped">
+  <prematch>^sshd</prematch>
+</decoder>
+
+<decoder name="sshd-stripped-invalid-user">
+  <parent>sshd-stripped</parent>
+  <prematch>Invalid user </prematch>
+  <regex>Invalid user (\S+) from (\S+)</regex>
+  <order>srcuser,srcip</order>
+</decoder>
+
+<decoder name="sshd-stripped-failed-invalid">
+  <parent>sshd-stripped</parent>
+  <prematch>Failed \S+ for invalid user </prematch>
+  <regex>for invalid user (\S+) from (\S+)</regex>
+  <order>srcuser,srcip</order>
+</decoder>
