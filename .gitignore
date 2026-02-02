@@ -1,0 +1,40 @@
+# Secrets / env
+*.env
+credentials.env
+credentials.local
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# VM / large artifacts (keep docs/diagrams, but avoid images/ISOs)
+testbed/images/
+*.iso
+*.ova
+*.ovf
+*.vdi
+*.vmdk
+*.qcow2
+*.img
+*.vbox
+*.vmx
+*.vmsd
+*.vmxf
+*.nvram
