@@ -1,0 +1,42 @@
+[
+  {
+    "rule_id": "100011",
+    "level": 8,
+    "description": "SSH recon from Kali Attack against MS-2",
+    "source_ip": "192.168.10.11",
+    "mitre_id": "T1046",
+    "timestamp": "2026-02-14T00:00:00Z"
+  },
+  {
+    "rule_id": "5763",
+    "level": 10,
+    "description": "Brute force SSH from Kali Attack against Kali Defense",
+    "source_ip": "192.168.10.11",
+    "mitre_id": "T1110.001",
+    "timestamp": "2026-02-14T00:00:00Z"
+  },
+  {
+    "rule_id": "2501",
+    "level": 5,
+    "description": "vsftpd 2.3.4 backdoor exploit on MS-2",
+    "source_ip": "192.168.10.13",
+    "mitre_id": "T1190",
+    "timestamp": "2026-02-14T00:00:00Z"
+  },
+  {
+    "rule_id": "5402",
+    "level": 3,
+    "description": "sudo privilege escalation on Kali Defense",
+    "source_ip": "192.168.10.12",
+    "mitre_id": "T1548",
+    "timestamp": "2026-02-14T00:00:00Z"
+  },
+  {
+    "rule_id": "100003",
+    "level": 7,
+    "description": "Suspicious file in /tmp on Kali Defense",
+    "source_ip": "192.168.10.12",
+    "mitre_id": "T1505.003",
+    "timestamp": "2026-02-14T00:00:00Z"
+  }
+]
