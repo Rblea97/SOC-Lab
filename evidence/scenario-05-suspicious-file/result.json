@@ -1,0 +1,9 @@
+{
+  "scenario": "05-suspicious-file",
+  "outcome": "PASS",
+  "rule_fired": "100003",
+  "latency_seconds": 71,
+  "expected_rule_ids": "554|100003",
+  "alert_snippet": "{\"timestamp\":\"2026-02-14T00:50:44.947+0000\",\"rule\":{\"level\":10,\"description\":\"Suspicious file created in /tmp - possible post-exploitation artifact\",\"id\":\"100003\",\"mitre\":{\"id\":[\"T1505.003\"],\"tactic\":[\"Persistence\"],\"technique\":[\"Web Shell\"]},\"firedtimes\":1,\"mail\":false,\"groups\":[\"local\",\"syscheck\"]},\"agent\":{\"id\":\"001\",\"name\":\"kali\",\"ip\":\"192.168.10.12\"},\"manager\":{\"name\":\"wazuh-server\"},\"id\":\"1771030244.74637\",\"full_log\":\"File '/tmp/reverse_shell.php' added\nMode: realtime\n\",\"syscheck\":{\"path\":\"/tmp/reverse_shell.php\",\"mode\":\"realtime\",\"size_after\":\"31\",\"perm_after\":\"rw-rw-r--\",\"uid_after\":\"1000\",\"gid_after\":\"1000\",\"md5_after\":\"fc023fcacb27a7ad72d605c4e300b389\",\"sha1_after\":\"f16d1122d450c92e85174c1984c70c2d6e4bdeb3\",\"sha256_after\":\"ac5b099b97c6536012276c5e61c50d4f4fe6fd606bd861c5c15f769153452e68\",\"uname_after\":\"kali\",\"gname_after\":\"kali\",\"mtime_after\":\"2026-02-14T00:50:42\",\"inode_after\":25,\"event\":\"added\"},\"decoder\":{\"name\":\"syscheck_new_entry\"},\"location\":\"syscheck\"}",
+  "timestamp": "2026-02-13T17:56:49-07:00"
+}

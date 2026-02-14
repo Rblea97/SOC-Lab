@@ -1,0 +1,9 @@
+{
+  "scenario": "03-vsftpd-exploit",
+  "outcome": "PASS",
+  "rule_fired": "2501",
+  "latency_seconds": 192,
+  "expected_rule_ids": "31108|31107|31101|5501|5402|5303|2501|1002|100001|100020",
+  "alert_snippet": "{\"timestamp\":\"2026-02-14T05:43:59.803+0000\",\"rule\":{\"level\":5,\"description\":\"syslog: User authentication failure.\",\"id\":\"2501\",\"firedtimes\":1,\"mail\":false,\"groups\":[\"syslog\",\"access_control\",\"authentication_failed\"],\"pci_dss\":[\"10.2.4\",\"10.2.5\"],\"gpg13\":[\"7.8\"],\"gdpr\":[\"IV_35.7.d\",\"IV_32.2\"],\"hipaa\":[\"164.312.b\"],\"nist_800_53\":[\"AU.14\",\"AC.7\"],\"tsc\":[\"CC6.1\",\"CC6.8\",\"CC7.2\",\"CC7.3\"]},\"agent\":{\"id\":\"000\",\"name\":\"wazuh-server\"},\"manager\":{\"name\":\"wazuh-server\"},\"id\":\"1771047839.911254\",\"full_log\":\"login[4875]: pam_unix(login:auth): authentication failure; logname=LOGIN uid=0 euid=0 tty=tty1 ruser= rhost=  user=msfadmin\",\"decoder\":{},\"location\":\"192.168.10.13\"}",
+  "timestamp": "2026-02-13T23:10:34-07:00"
+}

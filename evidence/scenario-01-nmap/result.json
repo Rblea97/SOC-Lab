@@ -1,0 +1,9 @@
+{
+  "scenario": "01-nmap-recon",
+  "outcome": "PASS",
+  "rule_fired": "100011",
+  "latency_seconds": 72,
+  "expected_rule_ids": "100011|100001|100010|5710",
+  "alert_snippet": "{\"timestamp\":\"2026-02-14T05:53:40.068+0000\",\"rule\":{\"level\":8,\"description\":\"Possible network scan: multiple SSH invalid user attempts from single source in 60s (T1046)\",\"id\":\"100011\",\"mitre\":{\"id\":[\"T1046\"],\"tactic\":[\"Discovery\"],\"technique\":[\"Network Service Discovery\"]},\"frequency\":12,\"firedtimes\":1,\"mail\":false,\"groups\":[\"local\",\"syslog\",\"sshd\",\"authentication_failed\"]},\"agent\":{\"id\":\"000\",\"name\":\"wazuh-server\"},\"manager\":{\"name\":\"wazuh-server\"},\"id\":\"1771048420.942778\",\"previous_output\":\"sshd[5033]: Invalid user scanuser from 192.168.10.11\nsshd[5031]: Failed none for invalid user scanuser from 192.168.10.11 port 50464 ssh2\nsshd[5031]: Invalid user scanuser from 192.168.10.11\nsshd[5029]: Failed none for invalid user scanuser from 192.168.10.11 port 50456 ssh2\nsshd[5029]: Invalid user scanuser from 192.168.10.11\nsshd[5027]: Failed none for invalid user scanuser from 192.168.10.11 port 50440 ssh2\nsshd[5027]: Invalid user scanuser from 192.168.10.11\nsshd[5025]: Failed none for invalid user scanuser from 192.168.10.11 port 50434 ssh2\nsshd[5025]: Invalid user scanuser from 192.168.10.11\nsshd[5023]: Failed none for invalid user scanuser from 192.168.10.11 port 50420 ssh2\nsshd[5023]: Invalid user scanuser from 192.168.10.11\",\"full_log\":\"sshd[5033]: Failed none for invalid user scanuser from 192.168.10.11 port 50476 ssh2\",\"decoder\":{\"parent\":\"sshd-stripped\",\"name\":\"sshd-stripped\"},\"data\":{\"srcip\":\"192.168.10.11\",\"srcuser\":\"scanuser\"},\"location\":\"192.168.10.13\"}",
+  "timestamp": "2026-02-13T22:54:51-07:00"
+}
