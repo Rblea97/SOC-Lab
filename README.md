@@ -20,6 +20,7 @@ This repository documents and automates an MVP SOC homelab based on the CSCY 474
 - Kali Defense `wazuh-agent` 4.9.2-1 registered (`ID: 001, Active`).
 - MS-2 syslog forwarding configured (`*.* @192.168.10.14` in `/etc/syslog.conf`).
 - **All 5 scenarios VALIDATED** — see `evidence/README.md` for per-scenario evidence.
+- Sample deliverable: `docs/ir-report-ssh-brute-force.md` — IR report for scenario 02 (SSH brute force), SANS format.
 - Automation scripts in `scripts/` (00=dep-check, 00=preflight, 01=onboard agent,
   02=deploy rules, 05–06=syslog/telemetry checks, 07–11=scenarios).
 - Credentials: store in a local gitignored file — see `testbed/CREDENTIALS.md` and
