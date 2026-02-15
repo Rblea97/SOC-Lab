@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/Rblea97/SOC-Lab/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Rblea97/SOC-Lab/actions/workflows/ci.yml)
 
-At 01:11 UTC, Wazuh fired rule 5763 — *brute force trying to get access to the system* — 36 times in 45 seconds, all originating from 192.168.10.11. I triaged the alert by examining the correlated events: 4 parallel Hydra sessions targeting user `kali` over SSH, each appearing in `journald` within milliseconds of each other, consistent with automated tooling. I confirmed no compromise: **rule 100002 did not fire** — the custom correlation rule that detects a successful login following a series of failures never triggered, meaning no credential was obtained. I ruled out a false positive by measuring the inter-event cadence (sub-second gaps between failures across 4 PIDs) against what a human typo would produce. I captured the full event sequence, documented the timeline from first failure (01:11:42) to attack termination (~01:12:27), and issued containment recommendations: block the source IP, enforce key-based auth, and deploy fail2ban. The incident was closed with classification *Credential Access — No Compromise*. Full report: [`docs/ir-report-ssh-brute-force.md`](docs/ir-report-ssh-brute-force.md) (IR-2026-002).
+At 01:11 UTC, Wazuh fired rule 5763 — *brute force trying to get access to the system* — 36 times in 45 seconds, all originating from 192.168.10.11. I triaged the alert by examining the correlated events: 4 parallel Hydra sessions targeting user `kali` over SSH, multiple events appearing within the same second across distinct PIDs, consistent with automated tooling. I confirmed no compromise: **rule 100002 did not fire** — the custom correlation rule that detects a successful login following a series of failures never triggered, meaning no credential was obtained. I ruled out a false positive by measuring the inter-event cadence (sub-second gaps between failures across 4 PIDs) against what a human typo would produce. I captured the full event sequence, documented the timeline from first failure (01:11:42) to attack termination (~01:12:27), and issued containment recommendations: block the source IP, enforce key-based auth, and deploy fail2ban. The incident was closed with classification *Credential Access — Brute Force*, status *No Compromise*. Full report: [`docs/ir-report-ssh-brute-force.md`](docs/ir-report-ssh-brute-force.md) (IR-2026-002).
 
 ---
 
@@ -19,7 +19,7 @@ At 01:11 UTC, Wazuh fired rule 5763 — *brute force trying to get access to the
 
 ### The MS-2 Syslog Normalization Problem
 
-MS-2's `sysklogd` strips RFC 3164 headers before forwarding — no timestamp, no hostname prefix — just `sshd[pid]: message`. Wazuh's standard `sshd` decoder expects the full header and silently fails to extract the source IP from these events. Without a source IP, frequency-based rules cannot correlate events by attacker. I recognized this gap, **authored a custom `sshd-stripped` decoder** ([`wazuh-config/local_decoder.xml`](wazuh-config/local_decoder.xml)) that matches on the raw `sshd[...]` prefix and extracts `srcip` and `srcuser`, then chained rules 100010 and 100011 on top of it. This recovered full detection coverage for roughly 20% of the telemetry that would otherwise have been undecodeable.
+MS-2's `sysklogd` strips RFC 3164 headers before forwarding — no timestamp, no hostname prefix — just `sshd[pid]: message`. Wazuh's standard `sshd` decoder expects the full header and silently fails to extract the source IP from these events. Without a source IP, frequency-based rules cannot correlate events by attacker. I recognized this gap, **authored a custom `sshd-stripped` decoder** ([`wazuh-config/local_decoder.xml`](wazuh-config/local_decoder.xml)) that matches on the raw `sshd[...]` prefix and extracts `srcip` and `srcuser`, then chained rules 100010 and 100011 on top of it. Without the decoder, any MS-2 syslog event in the stripped format would reach Wazuh without a source IP — making frequency-based correlation across events from the same attacker impossible.
 
 ### Threshold Tuning
 
@@ -27,7 +27,7 @@ Two frequency thresholds were tuned for distinct attack patterns:
 
 | Rule | Threshold | Window | Rationale |
 |------|-----------|--------|-----------|
-| 100001 / 100011 | 12 events | 60 s | Distinguishes automated scan cadence from human SSH probing; 12/min is above any plausible human rate |
+| 100001 / 100011 | 12 events | 60 s | Matches the sustained cadence of automated scanning tools; a single mistyped SSH connection produces far fewer than 12 invalid-user attempts in 60 s |
 | 100002 | 8 failures | 120 s | Flags brute-force *success* — only fires if login succeeds after repeated failures from the same IP, minimizing false positives to near-zero |
 
 ### Correlation Rule 100002 — Success After Failure
@@ -62,7 +62,7 @@ Five attack techniques were executed end-to-end, alerts were captured, and detec
 
 Evidence for each scenario: [`evidence/README.md`](evidence/README.md) — per-scenario `result.json` files with alert JSON, rule IDs, and SHA-256 hashes.
 
-**Detection latency gap:** Agent-based ingestion (scenario 04) achieved **7-second** detection. Syslog-forwarded events (scenarios 01, 03) measured **72–192 seconds** — a 10–25× gap explained by UDP 514 batch delivery and sysklogd's forwarding interval. This trade-off is documented; for production environments requiring sub-minute detection on legacy hosts, an agent or rsyslog TCP forwarding would be warranted.
+**Detection latency gap:** Agent-based ingestion (scenario 04) achieved **7-second** detection. Syslog-forwarded events (scenarios 01, 03) measured **72–192 seconds** — a 10–27× gap measured across the five scenarios. The root cause of the syslog delay was not instrumented in this lab; latency data is from `result.json` timestamps only. For production environments requiring sub-minute detection on legacy hosts, agent-based or TCP syslog forwarding would warrant evaluation.
 
 ---
 
@@ -79,7 +79,7 @@ The five scenarios in this lab each produce a different alert type. Below is the
 - Process IDs in the correlated events — multiple distinct PIDs (4167, 4175, 4183, 4190) firing simultaneously confirms parallel threads, consistent with Hydra `-t 4`.
 - **Rule 100002** — did it fire? If yes, a credential was obtained and I have an active compromise. If no (as in this case), the brute force failed.
 
-**Malicious vs. benign:** A user mistyping their password produces 2–3 failures, spaced seconds apart, from a single process. This alert showed 8+ failures per frequency window, sub-second inter-event gaps, 4 simultaneous source PIDs, and a wordlist user (`kali`) — not a human typo pattern.
+**Malicious vs. benign:** This alert showed 8+ failures per frequency window, sub-second inter-event gaps across 4 simultaneous source PIDs, and a generic target username (`kali`) — all consistent with automated tooling, not an interactive login session.
 
 **Containment action:** Block source IP (`ufw deny from 192.168.10.11`), enforce key-based auth (`PasswordAuthentication no` in `sshd_config`), deploy fail2ban. Full steps in [IR-2026-002](docs/ir-report-ssh-brute-force.md) §6.
 
@@ -115,7 +115,7 @@ The five scenarios in this lab each produce a different alert type. Below is the
 
 **Malicious vs. benign:** A single pam_unix failure on MS-2 is unremarkable. The same alert preceded by a port-21 connection from 192.168.10.11 using a `:)` username suffix is the vsftpd backdoor trigger — the failure is incidental to the exploit, not the attack itself.
 
-**Containment action:** Isolate MS-2 from the network segment. The vsftpd 2.3.4 backdoor opens a root shell on port 6200 — check for listening ports and active sessions before attributing this as a failed attempt.
+**Containment action:** Isolate MS-2 from the network segment. The lab's evidence captured a `pam_unix` auth failure (rule 2501) — no bind shell or post-exploitation activity was confirmed in this scenario's `result.json`. Check for listening ports and active sessions before attributing the alert as a failed attempt.
 
 **Escalate when:** Any evidence of a bind shell or reverse shell connection from MS-2 following the FTP auth event — that confirms full root compromise of the target.
 
@@ -130,7 +130,7 @@ The five scenarios in this lab each produce a different alert type. Below is the
 - Preceding authentication events — was this sudo invocation preceded by an SSH login from 192.168.10.11? If so, it may be a post-brute-force escalation.
 - Whether the sudo user is expected to have sudo rights on this host.
 
-**Malicious vs. benign:** An admin running `sudo systemctl` during business hours after a normal SSH login is benign. The same sudo event following a brute force alert from the same source IP, or running an interactive shell command, requires investigation.
+**Malicious vs. benign:** `sudo systemctl start ssh` (the command captured in scenario 04's evidence) is plausible admin work in isolation. The same sudo event following a brute force alert from the same source IP, or where the command opens an interactive shell, requires investigation.
 
 **Containment action:** None immediate for a standalone sudo event. If correlated with prior brute force success (rule 100002), assume the account is compromised — lock it, rotate credentials, review authorized_keys.
 
@@ -213,7 +213,7 @@ SOC Triage Report
 | **Investigation methodology** | Reconstructed SSH brute force timeline; correlated 36 events across 4 parallel sessions; confirmed no compromise via negative rule evidence |
 | **Containment & remediation** | Issued 5 specific containment actions with commands in IR-2026-002; mapped recommendations to compliance controls |
 | **False positive reasoning** | Tuned frequency thresholds to separate automated scan cadence from human behavior; documented why 100002 not firing is meaningful |
-| **Detection telemetry** | Measured agent vs. syslog detection latency (7 s vs. 192 s); documented the architectural cause and operational implication |
+| **Detection telemetry** | Measured agent vs. syslog detection latency (7 s vs. 192 s); documented the 10–27× gap and its operational implication for detection coverage |
 | **Cross-platform detection** | Sigma converter translates portable rule format to Wazuh XML; detection logic is not vendor-locked |
 | **Reproducibility** | All scenarios produce deterministic `result.json`; `make demo` replays enrichment without live VMs; 26 tests enforce correctness |
 
@@ -232,7 +232,7 @@ All VMs run on an isolated host-only network (`vboxnet0`). No VM has a route to 
 
 **Log ingestion paths:**
 - **Agent-based** (Kali Defense) — Wazuh agent ships journald auth logs and syscheck file integrity events over TCP 1514. Detection latency: 7–126 s.
-- **Syslog forwarding** (MS-2) — `*.* @192.168.10.14` over UDP 514. The `sshd-stripped` custom decoder normalizes the stripped-header format. Detection latency: 71–192 s.
+- **Syslog forwarding** (MS-2) — `*.* @192.168.10.14` over UDP 514. The `sshd-stripped` custom decoder normalizes the stripped-header format. Detection latency: 72–192 s.
 
 ---
 
