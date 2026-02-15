@@ -19,12 +19,12 @@ This repository documents and automates an MVP SOC homelab based on the CSCY 474
   `sshd-stripped` active.
 - Kali Defense `wazuh-agent` 4.9.2-1 registered (`ID: 001, Active`).
 - MS-2 syslog forwarding configured (`*.* @192.168.10.14` in `/etc/syslog.conf`).
-- **All 5 scenarios VALIDATED** — see `evidence/README.md` for per-scenario evidence.
-- Sample deliverable: `docs/ir-report-ssh-brute-force.md` — IR report for scenario 02 (SSH brute force), SANS format.
-- Automation scripts in `scripts/` (00=dep-check, 00=preflight, 01=onboard agent,
+- **All 5 scenarios VALIDATED** — see [`evidence/README.md`](evidence/README.md) for per-scenario evidence.
+- Sample deliverable: [`docs/ir-report-ssh-brute-force.md`](docs/ir-report-ssh-brute-force.md) — IR report for scenario 02 (SSH brute force), SANS format.
+- Automation scripts in [`scripts/`](scripts/) (00=dep-check, 00=preflight, 01=onboard agent,
   02=deploy rules, 05–06=syslog/telemetry checks, 07–11=scenarios).
-- Credentials: store in a local gitignored file — see `testbed/CREDENTIALS.md` and
-  `testbed/credentials.env.example`.
+- Credentials: store in a local gitignored file — see [`testbed/CREDENTIALS.md`](testbed/CREDENTIALS.md) and
+  [`testbed/credentials.env.example`](testbed/credentials.env.example).
 
 ## Demo in 5 minutes
 
@@ -49,13 +49,13 @@ SOC Triage Report
    ...
 ```
 
-See `docs/portfolio-writeup.md` for the full project narrative.
+See [`docs/portfolio-writeup.md`](docs/portfolio-writeup.md) for the full project narrative.
 
 ## Developer workflow
 
 - Local verification gate: `make verify` (runs Ruff format check + lint + MyPy + PyTest for `tools/`).
 - Optional: enable `pre-commit` to run Ruff, ShellCheck, and Gitleaks locally.
-- Claude Code guide: see `CLAUDE.md` and `docs/agent/claude-code.md`.
+- Claude Code guide: see [`CLAUDE.md`](CLAUDE.md) and [`docs/agent/claude-code.md`](docs/agent/claude-code.md).
 
 ## Repo Hygiene
 
