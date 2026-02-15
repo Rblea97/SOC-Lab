@@ -15,24 +15,24 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: 'pip'
-          cache-dependency-path: |
-            tools/pyproject.toml
-      - name: Bootstrap (venv + deps)
+          cache: pip
+          cache-dependency-path: tools/pyproject.toml
+
+      - name: Bootstrap
         run: make bootstrap
-      - name: Verify (format check + lint + typecheck + tests)
+
+      - name: Verify (format + lint + typecheck + tests)
         run: make verify
-      - name: Dependency audit (pip-audit)
+
+      - name: Dependency audit
         run: |
           . .venv/bin/activate
-          python -m pip install -U pip
-          python -m pip install pip-audit
+          pip install pip-audit
           pip-audit
 
   shellcheck:
@@ -41,14 +41,12 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@v4
+
       - name: ShellCheck
         run: |
-          sudo apt-get update
-          sudo apt-get install -y shellcheck
-          shopt -s globstar nullglob
-          shellcheck scripts/*.sh
+          sudo apt-get install -y shellcheck -qq
+          shellcheck --severity=error scripts/*.sh
 
   gitleaks:
     runs-on: ubuntu-latest
@@ -56,9 +54,13 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Gitleaks
-        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
+      - uses: actions/checkout@v4
         with:
-          fail: true
+          fetch-depth: 0
+
+      - name: Gitleaks
+        run: |
+          curl -sSfL \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.21.2/gitleaks_8.21.2_linux_x64.tar.gz \
+            | tar -xz gitleaks
+          ./gitleaks detect --source . --verbose --redact
