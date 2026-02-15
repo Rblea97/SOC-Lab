@@ -1,6 +1,6 @@
 # SOC Home Lab (MVP)
 
-[![CI](https://github.com/Rblea97/SOC-Lab/actions/workflows/ci.yml/badge.svg)](https://github.com/Rblea97/SOC-Lab/actions/workflows/ci.yml)
+[![CI](https://github.com/Rblea97/SOC-Lab/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Rblea97/SOC-Lab/actions/workflows/ci.yml)
 
 This repository documents and automates an MVP SOC homelab based on the CSCY 4743 three-VM testbed plus a dedicated Wazuh SIEM VM.
 
