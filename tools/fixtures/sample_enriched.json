@@ -1,0 +1,52 @@
+[
+  {
+    "rule_id": "100011",
+    "level": 6,
+    "description": "Network port scan detected on target host",
+    "source_ip": "192.0.2.10",
+    "mitre_id": "T1046",
+    "timestamp": "2026-02-14T00:00:00Z",
+    "risk_label": "medium",
+    "mitre_description": "Network Service Discovery"
+  },
+  {
+    "rule_id": "5763",
+    "level": 12,
+    "description": "Successful authentication after multiple failures",
+    "source_ip": "192.0.2.10",
+    "mitre_id": "T1110.001",
+    "timestamp": "2026-02-14T00:05:00Z",
+    "risk_label": "critical",
+    "mitre_description": "Password Guessing"
+  },
+  {
+    "rule_id": "2501",
+    "level": 10,
+    "description": "Exploit attempt against public-facing service",
+    "source_ip": "192.0.2.20",
+    "mitre_id": "T1190",
+    "timestamp": "2026-02-14T00:10:00Z",
+    "risk_label": "high",
+    "mitre_description": "Exploit Public-Facing Application"
+  },
+  {
+    "rule_id": "5402",
+    "level": 3,
+    "description": "Privilege escalation attempt via sudo detected",
+    "source_ip": null,
+    "mitre_id": "T1548",
+    "timestamp": "2026-02-14T00:15:00Z",
+    "risk_label": "low",
+    "mitre_description": "Abuse Elevation Control Mechanism"
+  },
+  {
+    "rule_id": "100003",
+    "level": 9,
+    "description": "Web shell artifact found in web root directory",
+    "source_ip": null,
+    "mitre_id": "T1505.003",
+    "timestamp": "2026-02-14T00:20:00Z",
+    "risk_label": "high",
+    "mitre_description": "Web Shell"
+  }
+]

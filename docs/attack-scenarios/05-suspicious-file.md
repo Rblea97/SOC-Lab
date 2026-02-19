@@ -1,6 +1,6 @@
 ## Scenario 05: Suspicious Temporary File Creation
 
-**MITRE ATT&CK:** T1505.003 - Web Shell  
+**MITRE ATT&CK:** T1505.003 - Web Shell
 **Objective:** Detect file artifacts indicating post-exploitation staging.
 
 ### Attack Steps

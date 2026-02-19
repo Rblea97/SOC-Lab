@@ -28,7 +28,7 @@ Store Wazuh dashboard/API and SSH passwords in a **local, gitignored** file. See
    ```
    Not automatable (no VirtualBox Guest Additions on MS-2).
 
-3. **SSH to Wazuh VM (for rules deploy)**  
+3. **SSH to Wazuh VM (for rules deploy)**
    Either:
    - Copy your SSH key: `ssh-copy-id analyst@192.168.10.14` (use your analyst password), or
    - Set `WAZUH_SSH_PASS` when running the deploy script (requires `sshpass`).

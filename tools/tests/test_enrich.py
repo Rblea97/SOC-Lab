@@ -1,3 +1,5 @@
+import json
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -177,3 +179,56 @@ def test_main_missing_password(capsys: pytest.CaptureFixture) -> None:
     assert result == 1
     captured = capsys.readouterr()
     assert "Missing" in captured.out
+
+
+# ---------------------------------------------------------------------------
+# sample_enriched.json fixture schema tests
+# ---------------------------------------------------------------------------
+
+_ENRICHED_FIXTURE = Path(__file__).parent.parent / "fixtures" / "sample_enriched.json"
+_REQUIRED_FIELDS = {
+    "rule_id",
+    "level",
+    "description",
+    "source_ip",
+    "mitre_id",
+    "timestamp",
+    "risk_label",
+    "mitre_description",
+}
+_VALID_RISK_LABELS = {"critical", "high", "medium", "low"}
+
+
+def test_enriched_fixture_has_records() -> None:
+    data: list[dict[str, object]] = json.loads(_ENRICHED_FIXTURE.read_text())
+    assert len(data) >= 3
+
+
+def test_enriched_fixture_schema() -> None:
+    data: list[dict[str, object]] = json.loads(_ENRICHED_FIXTURE.read_text())
+    for record in data:
+        missing = _REQUIRED_FIELDS - set(record.keys())
+        assert not missing, f"Missing fields: {missing}"
+        assert isinstance(record["rule_id"], str)
+        assert isinstance(record["level"], int)
+        assert isinstance(record["description"], str)
+        assert record["source_ip"] is None or isinstance(record["source_ip"], str)
+        assert record["mitre_id"] is None or isinstance(record["mitre_id"], str)
+        assert isinstance(record["timestamp"], str)
+        assert isinstance(record["risk_label"], str)
+        assert record["mitre_description"] is None or isinstance(record["mitre_description"], str)
+
+
+def test_enriched_fixture_risk_labels() -> None:
+    data: list[dict[str, object]] = json.loads(_ENRICHED_FIXTURE.read_text())
+    for record in data:
+        assert record["risk_label"] in _VALID_RISK_LABELS
+
+
+def test_enriched_fixture_no_credentials() -> None:
+    # Check for credential key-value patterns, not just the word appearing in descriptions
+    raw = _ENRICHED_FIXTURE.read_text().lower()
+    assert '"password"' not in raw, "fixture must not contain a 'password' JSON key"
+    assert "password=" not in raw, "fixture must not contain password= assignment"
+    assert "api_key=" not in raw, "fixture must not contain api_key= assignment"
+    assert '"secret"' not in raw, "fixture must not contain a 'secret' JSON key"

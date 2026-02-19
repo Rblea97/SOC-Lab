@@ -1,0 +1,16 @@
+title: Suspicious Script Artifact in Temporary Directory
+id: e5f6a1b2-c3d4-4e5f-8061-7b8c9d0e1f2a
+description: Detects FIM syscheck events for script files with suspicious names or extensions in temp directories
+status: experimental
+logsource:
+  product: linux
+  service: syscheck
+detection:
+  selection:
+    message|contains:
+      - "syscheck"
+      - "reverse_shell"
+      - ".php"
+  condition: selection
+tags:
+  - attack.t1505.003

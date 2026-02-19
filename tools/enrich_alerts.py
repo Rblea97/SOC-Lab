@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from typing import Any
 
 import requests
@@ -123,8 +125,28 @@ def format_triage_report(alerts: list[EnrichedAlert]) -> str:
     return "\n".join(lines)
 
 
-def main() -> int:
+def _flatten(ea: EnrichedAlert) -> dict[str, object]:
+    """Return the locked flat schema dict for an EnrichedAlert."""
+    return {
+        "rule_id": ea.alert.rule_id,
+        "level": ea.alert.level,
+        "description": ea.alert.description,
+        "source_ip": ea.alert.source_ip,
+        "mitre_id": ea.alert.mitre_id,
+        "timestamp": ea.alert.timestamp,
+        "risk_label": ea.risk_label,
+        "mitre_description": ea.mitre_description,
+    }
+
+
+def main(argv: list[str] | None = None) -> int:
     """CLI entrypoint."""
+    parser = argparse.ArgumentParser(description="Fetch and enrich Wazuh alerts.")
+    parser.add_argument(
+        "--output", metavar="FILE", help="Write enriched alerts as flat JSON to FILE."
+    )
+    args, _ = parser.parse_known_args(argv)
+
     api_url = os.environ.get("WAZUH_API_URL", "https://192.168.10.14:55000")
     username = os.environ.get("WAZUH_API_USER")
     password = os.environ.get("WAZUH_API_PASSWORD")
@@ -154,7 +176,10 @@ def main() -> int:
 
     print(format_triage_report(enriched))
     print("\nJSON\n----")
-    print(json.dumps([asdict(item) for item in enriched], indent=2))
+    flat = [_flatten(e) for e in enriched]
+    print(json.dumps(flat, indent=2))
+    if args.output:
+        Path(args.output).write_text(json.dumps(flat, indent=2))
     return 0
 
 

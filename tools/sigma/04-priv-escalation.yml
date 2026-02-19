@@ -1,0 +1,16 @@
+title: Privilege Escalation via Sudo to Root
+id: d4e5f6a1-b2c3-4d4e-bf50-6a7b8c9d0e1f
+description: Detects sudo elevation to root from interactive SSH sessions indicating privilege escalation
+status: experimental
+logsource:
+  product: linux
+  service: sudo
+detection:
+  selection:
+    message|contains:
+      - "sudo"
+      - "TTY=unknown"
+      - "ROOT"
+  condition: selection
+tags:
+  - attack.t1548.003

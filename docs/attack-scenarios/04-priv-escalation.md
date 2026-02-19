@@ -1,6 +1,6 @@
 ## Scenario 04: Privilege Escalation Attempt
 
-**MITRE ATT&CK:** T1548 - Abuse Elevation Control Mechanism  
+**MITRE ATT&CK:** T1548 - Abuse Elevation Control Mechanism
 **Objective:** Detect suspicious privileged command attempts.
 
 ### Attack Steps

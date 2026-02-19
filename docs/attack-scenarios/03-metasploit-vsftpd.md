@@ -1,6 +1,6 @@
 ## Scenario 03: Metasploit vsftpd Exploit
 
-**MITRE ATT&CK:** T1190 - Exploit Public-Facing Application  
+**MITRE ATT&CK:** T1190 - Exploit Public-Facing Application
 **Objective:** Detect exploitation attempt of known vulnerable service.
 
 ### Attack Steps

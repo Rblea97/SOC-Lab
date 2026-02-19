@@ -9,7 +9,7 @@
    cp testbed/credentials.env.example testbed/credentials.env
    ```
 
-2. **Edit `testbed/credentials.env`** on your machine and fill in your real values.  
+2. **Edit `testbed/credentials.env`** on your machine and fill in your real values.
    This file is listed in `.gitignore` and will **not** be committed.
 
 3. **Optional:** Use a password manager and store the same info there; keep `credentials.env` only for scripts that need to read it (e.g. `source testbed/credentials.env` before running automation scripts).

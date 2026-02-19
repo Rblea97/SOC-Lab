@@ -1,6 +1,6 @@
 ## Scenario 02: SSH Brute Force
 
-**MITRE ATT&CK:** T1110.001 - Brute Force: Password Guessing  
+**MITRE ATT&CK:** T1110.001 - Brute Force: Password Guessing
 **Objective:** Detect repeated SSH auth failures and possible success.
 
 ### Attack Steps

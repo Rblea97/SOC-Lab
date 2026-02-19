@@ -1,0 +1,16 @@
+title: SSH Brute Force Authentication Failure
+id: b2c3d4e5-f6a1-4b2c-9d3e-4f5a6b7c8d9e
+description: Detects repeated SSH authentication failures indicating a brute force password attack
+status: experimental
+logsource:
+  product: linux
+  service: sshd
+detection:
+  selection:
+    message|contains:
+      - "Failed password"
+      - "authentication failure"
+      - "FAILED LOGIN"
+  condition: selection
+tags:
+  - attack.t1110.001

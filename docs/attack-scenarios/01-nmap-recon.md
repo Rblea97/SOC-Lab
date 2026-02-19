@@ -1,6 +1,6 @@
 ## Scenario 01: Network Reconnaissance
 
-**MITRE ATT&CK:** T1046 - Network Service Discovery  
+**MITRE ATT&CK:** T1046 - Network Service Discovery
 **Objective:** Detect rapid service probing against MS-2.
 
 ### Attack Steps
