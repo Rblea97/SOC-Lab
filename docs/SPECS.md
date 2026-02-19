@@ -184,3 +184,89 @@ AC-P2-002. `uv run python tools/demo_enrich.py` outputs triage report + JSON wit
 AC-P2-003. `python tools/report.py tools/fixtures/sample_enriched.json` writes a valid Markdown file.
 AC-P2-004. `uv run nox -s test` passes (all Phase 1 + Phase 2 tests).
 AC-P2-005. `README.md` exists, renders on GitHub, all links resolve.
+
+---
+
+# Phase 3 — Portfolio Completion
+
+## Problem / Context
+Phase 2 delivered the detection engineering pipeline and established technical depth.
+Phase 3 closes the remaining portfolio gaps that reduce signal to a hiring manager:
+- 4 of 5 attack scenarios have no incident response report.
+- `docs/portfolio-writeup.md` references deleted commands and a wrong test count.
+- No MITRE ATT&CK Navigator layer file exists — a standard practitioner artifact.
+- No single command demonstrates the full pipeline end-to-end (enrichment demo only).
+- `.claude.md` was incorrectly named and not auto-loaded by Claude Code.
+
+## Goals
+G-P3-001. Complete IR report coverage:
+- Author 4 missing IR reports (scenarios 01, 03, 04, 05) matching the IR-2026-002 template.
+- All reports use data from `evidence/scenario-XX/result.json`.
+
+G-P3-002. Update portfolio-writeup.md:
+- Remove stale tooling references (`make` commands, wrong test count, wrong type checker).
+- Add Detection Engineering Pipeline section and references to IR suite + Navigator layer.
+
+G-P3-003. Create MITRE ATT&CK Navigator layer file:
+- `docs/attack-coverage.json` covering all 5 detected techniques.
+- Openable at navigator.attack.mitre.org; annotated with scenario numbers and rule IDs.
+
+G-P3-004. End-to-end pipeline demo:
+- `tools/pipeline_demo.py`: single command showing Sigma→XML, enrichment, and report stages.
+- Zero env vars, zero network calls, imports only from existing modules.
+
+## Non-Goals
+NG-P3-001. No new attack scenarios.
+NG-P3-002. No live API integration (fixtures only).
+NG-P3-003. No new external dependencies (no Jupyter, no TheHive, no MISP).
+NG-P3-004. No changes to the enriched alert JSON schema (locked in Phase 2).
+
+## Functional Requirements (Phase 3, numbered, testable)
+FR-P3-001. IR reports exist for all 5 scenarios:
+- `docs/ir-report-nmap-recon.md` (IR-2026-001), `docs/ir-report-vsftpd-exploit.md` (IR-2026-003),
+  `docs/ir-report-priv-escalation.md` (IR-2026-004), `docs/ir-report-suspicious-file.md` (IR-2026-005).
+- Each contains all 7 sections from the IR-2026-002 template.
+
+FR-P3-002. Each IR report references the correct evidence file and MITRE technique:
+- grep checks on IR number, MITRE ID, rule ID, and evidence path all pass.
+
+FR-P3-003. `docs/portfolio-writeup.md` contains no references to deleted `make` commands:
+- Zero occurrences of `make bootstrap`, `make demo`, `make verify`.
+- `uv run nox -s all` is the canonical gate command.
+- `pyright` is named as type checker; test count is accurate.
+
+FR-P3-004. `docs/attack-coverage.json` is a valid Navigator 4.x layer:
+- `python -m json.tool docs/attack-coverage.json` exits 0.
+- All 5 techniques present with scenario annotations.
+
+FR-P3-005. `tools/pipeline_demo.py` runs offline:
+- `uv run python tools/pipeline_demo.py` exits 0 with no env vars.
+- Prints 3 stage headers and 3 `[PASS]` lines.
+- No network calls, no `os.environ` reads.
+
+FR-P3-006. Pipeline demo tests pass:
+- `tools/tests/test_pipeline_demo.py` contains 3 tests.
+- `uv run nox -s test` passes (50 → 53 tests green).
+
+## Non-Functional Requirements (Phase 3)
+### Security
+NFR-P3-S-001. IR reports use only private-range IPs from evidence files (no new public IPs introduced).
+NFR-P3-S-002. No credentials or secrets in any new file.
+
+### DX
+NFR-P3-DX-001. A hiring manager can open `docs/attack-coverage.json` at navigator.attack.mitre.org and see labeled coverage immediately.
+NFR-P3-DX-002. `uv run python tools/pipeline_demo.py` demonstrates the full pipeline in under 30 seconds.
+
+## Constraints
+C-P3-001. PR-sized tasks (30–90 minutes).
+C-P3-002. <=150 LOC net per task unless exception noted (TASK-019 exception documented in TASKS.md).
+C-P3-003. All tasks must keep `uv run nox -s all` green.
+C-P3-004. No ADR needed for Phase 3 (no new architecture — see TASK-019 inline comment rationale).
+
+## Acceptance Criteria (Phase 3)
+AC-P3-001. `ls docs/ir-report-*.md | wc -l` returns 5.
+AC-P3-002. `grep -c "make bootstrap\|make demo\|make verify" docs/portfolio-writeup.md` returns 0.
+AC-P3-003. `python -m json.tool docs/attack-coverage.json` exits 0 and file contains 5 techniqueID entries.
+AC-P3-004. `uv run python tools/pipeline_demo.py | grep "\[PASS\]" | wc -l` returns 3.
+AC-P3-005. `uv run nox -s test` passes (53 tests).
+AC-P3-006. `uv run nox -s all` passes after all Phase 3 tasks.

@@ -411,3 +411,383 @@ done
 **Verification commands**
 - `wc -l README.md`
 - `uv run python tools/demo_enrich.py`
+
+---
+
+# Phase 3 — Portfolio Completion
+
+> Prerequisite: TASK-001 through TASK-012 complete (Phases 1 and 2 done, all tests green).
+> No new scenarios, no live API integration. See SPECS.md Phase 3 for goals and ACs.
+
+---
+
+## TASK-020 — Update planning docs + rename CLAUDE.md (do first)
+
+**Scope**
+- `git mv .claude.md CLAUDE.md` — fixes Claude Code auto-loading (hidden lowercase file was not being loaded).
+- Append Phase 3 section to `docs/TASKS.md` (this file).
+- Append Phase 3 section to `docs/SPECS.md`.
+- Update `docs/CURRENT_STATE.md`: Phase 2 status → committed; add Phase 3 section with status PLANNED.
+- Fix `docs/adr/ADR-0002-*.md` status line: `Proposed` → `Accepted` (inconsistency with CURRENT_STATE.md).
+
+**Files allowed to change**
+- `CLAUDE.md` (renamed from `.claude.md`)
+- `docs/TASKS.md`
+- `docs/SPECS.md`
+- `docs/CURRENT_STATE.md`
+- `docs/adr/ADR-0002-detection-engineering-pipeline-phase-2.md`
+
+**Forbidden changes**
+- No Python source changes
+- No CI changes
+
+**Acceptance Criteria**
+- `ls CLAUDE.md` exits 0; `ls .claude.md` fails
+- `grep "Phase 3" docs/TASKS.md` → match
+- `grep "Phase 3" docs/SPECS.md` → match
+- `grep "PLANNED" docs/CURRENT_STATE.md` → match
+- `grep "^Accepted" docs/adr/ADR-0002-*.md` → match
+
+**DoD checklist**
+- [ ] `.claude.md` renamed to `CLAUDE.md`
+- [ ] Phase 3 section in TASKS.md
+- [ ] Phase 3 section in SPECS.md
+- [ ] Phase 3 section in CURRENT_STATE.md with status PLANNED
+- [ ] ADR-0002 status reads Accepted
+- [ ] `uv run nox -s all` green (no Python touched)
+
+**Verification commands**
+- `ls CLAUDE.md && echo "OK: renamed" || echo "FAIL: CLAUDE.md missing"`
+- `grep "Phase 3" docs/TASKS.md docs/SPECS.md docs/CURRENT_STATE.md`
+- `uv run nox -s all`
+
+---
+
+## TASK-013 — Write IR report for scenario 01 (Nmap Recon) as IR-2026-001
+
+**Scope**
+- Create `docs/ir-report-nmap-recon.md` following the 7-section template from `docs/ir-report-ssh-brute-force.md`.
+
+**Template reference:** `docs/ir-report-ssh-brute-force.md` (IR-2026-002) — match sections exactly:
+metadata header, Executive Summary, Affected Systems, UTC Timeline, Technical Analysis,
+MITRE Mapping, Evidence Table, Containment + Compliance.
+
+**Key data (from `evidence/scenario-01-nmap/result.json`):**
+- Incident ID: IR-2026-001
+- Rule 100011 (custom composite frequency), level 8 (High)
+- MITRE: T1046 — Network Service Discovery (tactic: Discovery)
+- Source: 192.168.10.11 → target MS-2 (192.168.10.13), agent 000/wazuh-server
+- Trigger: 12+ invalid SSH user probes in 60s window, decoded via `sshd-stripped` (custom decoder)
+- Detection timestamp: 2026-02-14T05:53:40Z, latency: 72s
+- Outcome: reconnaissance only — no exploitation (rule 100002 never fired)
+- Compliance refs: NIST 800-53 CA-7, SI-4 / PCI-DSS 11.4, 10.6.1
+
+**Files allowed to change**
+- `docs/ir-report-nmap-recon.md` (new)
+
+**Forbidden changes**
+- No Python changes; no CI changes; no IPs outside 192.168.10.x range
+
+**Acceptance Criteria**
+- File exists with all 7 sections
+- Incident ID is IR-2026-001
+- All evidence references point to `evidence/scenario-01-nmap/result.json`
+- MITRE table contains T1046
+- `uv run nox -s all` stays green
+
+**DoD checklist**
+- [ ] `docs/ir-report-nmap-recon.md` exists
+- [ ] IR-2026-001 present
+- [ ] T1046 present
+- [ ] Rule 100011 referenced
+- [ ] `evidence/scenario-01-nmap` referenced
+- [ ] `uv run nox -s all` green
+
+**Verification commands**
+- `grep "IR-2026-001\|T1046\|100011\|scenario-01-nmap" docs/ir-report-nmap-recon.md`
+- `uv run nox -s all`
+
+---
+
+## TASK-014 — Write IR report for scenario 03 (vsftpd Exploit) as IR-2026-003
+
+**Scope**
+- Create `docs/ir-report-vsftpd-exploit.md` following the 7-section template.
+
+**Key data (from `evidence/scenario-03-vsftpd/result.json`):**
+- Incident ID: IR-2026-003
+- Rule 2501 (built-in syslog auth failure), level 5 (Medium)
+- MITRE: T1190 — Exploit Public-Facing Application (tactic: Initial Access)
+- Target: MS-2, agent 000/wazuh-server, timestamp: 2026-02-14T05:43:59Z, latency: 192s (longest)
+- Alert log: `pam_unix(login:auth): authentication failure` — indirect detection of CVE-2011-2523 (vsftpd 2.3.4 backdoor)
+- Compliance: PCI-DSS 10.2.4/10.2.5, NIST AU.14/AC.7, HIPAA 164.312.b, GDPR IV_35.7.d
+
+**Analysis note:** Detection was indirect (PAM auth failure from backdoor shell's local login attempt on port 6200).
+Report must explain this detection gap and recommend a dedicated network-layer rule for port 6200/TCP activity.
+Built-in rule 2501 at level 5 may not trigger escalation automatically — document this.
+
+**Files allowed to change**
+- `docs/ir-report-vsftpd-exploit.md` (new)
+
+**Forbidden changes**
+- No Python changes; no CI changes
+
+**Acceptance Criteria**
+- File exists with all 7 sections; IR-2026-003; T1190; evidence path referenced
+- `uv run nox -s all` stays green
+
+**DoD checklist**
+- [ ] `docs/ir-report-vsftpd-exploit.md` exists
+- [ ] IR-2026-003 present
+- [ ] T1190 present
+- [ ] Rule 2501 referenced
+- [ ] 192s latency and detection gap analysis included
+- [ ] `uv run nox -s all` green
+
+**Verification commands**
+- `grep "IR-2026-003\|T1190\|2501\|scenario-03-vsftpd" docs/ir-report-vsftpd-exploit.md`
+- `uv run nox -s all`
+
+---
+
+## TASK-015 — Write IR report for scenario 04 (Privilege Escalation) as IR-2026-004
+
+**Scope**
+- Create `docs/ir-report-priv-escalation.md` following the 7-section template.
+
+**Key data (from `evidence/scenario-04-priv-esc/result.json`):**
+- Incident ID: IR-2026-004
+- Rule 5402 (built-in "Successful sudo to ROOT"), level 3 (Low)
+- MITRE: T1548.003 — Sudo and Sudo Caching (tactics: Privilege Escalation, Defense Evasion)
+- Agent: 001/kali/192.168.10.12, timestamp: 2026-02-14T06:24:01Z, latency: 7s (fastest)
+- firedtimes: 26 (repeated sudo executions during scenario)
+- Command: `sudo /usr/bin/systemctl start ssh` by user `kali` from PWD `/`
+- Compliance: NIST AC.7/AC.6, PCI-DSS 10.2.5/10.2.2, HIPAA 164.312.b
+
+**Analysis note:** Level 3 may be treated as informational in production. Report must explain contextual
+significance: enabling SSH after gaining access is a persistence indicator. Recommend correlation rule
+or level-tuning.
+
+**Files allowed to change**
+- `docs/ir-report-priv-escalation.md` (new)
+
+**Forbidden changes**
+- No Python changes; no CI changes
+
+**Acceptance Criteria**
+- File exists with all 7 sections; IR-2026-004; T1548.003; evidence path referenced
+- Analysis explains why low-severity warrants attention
+- `uv run nox -s all` stays green
+
+**DoD checklist**
+- [ ] `docs/ir-report-priv-escalation.md` exists
+- [ ] IR-2026-004 present
+- [ ] T1548 present
+- [ ] Rule 5402 referenced
+- [ ] Low-severity context analysis included
+- [ ] `uv run nox -s all` green
+
+**Verification commands**
+- `grep "IR-2026-004\|T1548\|5402\|scenario-04-priv-esc" docs/ir-report-priv-escalation.md`
+- `uv run nox -s all`
+
+---
+
+## TASK-016 — Write IR report for scenario 05 (Suspicious File) as IR-2026-005
+
+**Scope**
+- Create `docs/ir-report-suspicious-file.md` following the 7-section template.
+
+**Key data (from `evidence/scenario-05-suspicious-file/result.json`):**
+- Incident ID: IR-2026-005
+- Rule 100003 (custom syscheck FIM rule), level 10 (High)
+- MITRE: T1505.003 — Web Shell (tactic: Persistence)
+- Agent: 001/kali/192.168.10.12, file: `/tmp/reverse_shell.php`, timestamp: 2026-02-14T00:50:44Z, latency: 71s
+- File metadata: 31 bytes, permissions 664, uid/gid 1000/1000, inode 25
+- **SHA256:** `ac5b099b97c6536012276c5e61c50d4f4fe6fd606bd861c5c15f769153452e68`
+- **SHA1:** `f16d1122d450c92e85174c1984c70c2d6e4bdeb3`
+- **MD5:** `fc023fcacb27a7ad72d605c4e300b389`
+- Detection mechanism: syscheck realtime FIM (NOT log-based — distinguish clearly in report)
+
+**Analysis note:** Include a dedicated artifact hash table (MD5/SHA1/SHA256) — standard IR practice.
+Containment: collect before deletion, submit hashes to VirusTotal, check cron + `authorized_keys`,
+check for network connections on 80/443.
+
+**Files allowed to change**
+- `docs/ir-report-suspicious-file.md` (new)
+
+**Forbidden changes**
+- No Python changes; no CI changes
+
+**Acceptance Criteria**
+- File exists with all 7 sections; IR-2026-005; T1505.003; SHA256 hash present; evidence path referenced
+- `uv run nox -s all` stays green
+
+**DoD checklist**
+- [ ] `docs/ir-report-suspicious-file.md` exists
+- [ ] IR-2026-005 present
+- [ ] T1505.003 present
+- [ ] Rule 100003 referenced
+- [ ] SHA256 `ac5b099b` present in evidence table
+- [ ] `uv run nox -s all` green
+
+**Verification commands**
+- `grep "IR-2026-005\|T1505.003\|100003\|ac5b099b" docs/ir-report-suspicious-file.md`
+- `uv run nox -s all`
+
+---
+
+## TASK-017 — Update `docs/portfolio-writeup.md` (fix stale tooling references)
+
+**Scope**
+- Remove all references to `make bootstrap`, `make demo`, `make verify` — these commands no longer exist.
+- Update test count from 26 → 50 (or current count at time of implementation).
+- Update type checker reference from `mypy`/`MyPy` → `pyright`.
+- List all 4 committed Python tools (sigma_convert, enrich_alerts, demo_enrich, report); add pipeline_demo.py if TASK-019 is done.
+- Add "Detection Engineering Pipeline" section showing the Sigma→convert→enrich→report flow.
+- Reference the IR report suite (IR-2026-001 through IR-2026-005) in Skills Demonstrated.
+- Reference `docs/attack-coverage.json` (ATT&CK Navigator layer) if TASK-018 is done.
+
+**Files allowed to change**
+- `docs/portfolio-writeup.md`
+
+**Forbidden changes**
+- No Python changes; no CI changes; do not remove Future Work section
+
+**Acceptance Criteria**
+- Zero occurrences of: `make bootstrap`, `make demo`, `make verify`
+- `uv run nox -s all` appears as the canonical gate command
+- `pyright` named as type checker
+- Test count updated
+- Pipeline section exists
+- `uv run nox -s all` stays green
+
+**DoD checklist**
+- [ ] `grep -c "make bootstrap\|make demo\|make verify" docs/portfolio-writeup.md` returns 0
+- [ ] `grep "uv run nox" docs/portfolio-writeup.md` → match
+- [ ] `grep "pyright\|Pyright" docs/portfolio-writeup.md` → match
+- [ ] Test count accurate
+- [ ] Pipeline section present
+- [ ] `uv run nox -s all` green
+
+**Verification commands**
+- `grep -c "make bootstrap\|make demo\|make verify" docs/portfolio-writeup.md`
+- `grep "uv run nox\|pyright" docs/portfolio-writeup.md`
+- `uv run nox -s all`
+
+---
+
+## TASK-018 — Create `docs/attack-coverage.json` (MITRE ATT&CK Navigator layer)
+
+**Scope**
+- Create a Navigator 4.x layer file covering all 5 detected techniques.
+- This is a pure JSON artifact — no Python source changes, no new nox session.
+
+**Format:** ATT&CK Navigator 4.x, domain `enterprise-attack`, ATT&CK version 15, Navigator version 4.9.
+
+**Techniques to include:**
+
+| techniqueID | tactic | color | comment |
+|---|---|---|---|
+| T1046 | discovery | #ff6666 | Scenario 01: Nmap SSH probe → rule 100011 (custom, 72s latency) |
+| T1110.001 | credential-access | #ff6666 | Scenario 02: Hydra brute force → rules 5763/100002 (built-in, 126s) |
+| T1190 | initial-access | #ff6666 | Scenario 03: vsftpd CVE-2011-2523 → rule 2501 (built-in, 192s) |
+| T1548.003 | privilege-escalation | #ff9900 | Scenario 04: sudo abuse → rule 5402 (built-in, level 3, 7s) |
+| T1505.003 | persistence | #ff6666 | Scenario 05: PHP web shell in /tmp → rule 100003 (custom FIM, 71s) |
+
+T1548.003 uses #ff9900 (orange) to reflect its lower rule level (3 vs 10 for others) — honest visual representation.
+
+**Files allowed to change**
+- `docs/attack-coverage.json` (new)
+
+**Forbidden changes**
+- No Python changes; no nox config changes; no CI changes
+
+**Acceptance Criteria**
+- `python -m json.tool docs/attack-coverage.json` exits 0 (valid JSON)
+- All 5 technique IDs present; comment fields reference scenario numbers
+- `uv run nox -s all` stays green (no Python touched)
+
+**DoD checklist**
+- [ ] `docs/attack-coverage.json` exists
+- [ ] `python -m json.tool docs/attack-coverage.json` exits 0
+- [ ] `grep -c '"techniqueID"' docs/attack-coverage.json` returns 5
+- [ ] All 5 MITRE IDs present
+- [ ] `uv run nox -s all` green
+
+**Verification commands**
+- `python -m json.tool docs/attack-coverage.json`
+- `grep -c '"techniqueID"' docs/attack-coverage.json`
+- `uv run nox -s all`
+
+---
+
+## TASK-019 — Create `tools/pipeline_demo.py` (end-to-end pipeline demonstration)
+
+**Scope**
+- Create `tools/pipeline_demo.py`: a single runnable command that chains all 3 pipeline stages with no env vars.
+- Create `tools/tests/test_pipeline_demo.py` with 3 tests (50 → 53 total).
+
+**Design:**
+Command: `uv run python tools/pipeline_demo.py`
+Zero env vars, zero network calls. Imports only from existing modules: `sigma_convert`, `enrich_alerts`, `report`, stdlib.
+
+**Three stages (print a clear header before each):**
+
+1. **Stage 1 — Sigma → Wazuh XML:** `parse_sigma_rule()` on `tools/sigma/01-nmap-recon.yml` (path relative
+   to `Path(__file__).parent`), then `convert_to_wazuh_xml(base_id=100011)`, then `validate_wazuh_rule()`.
+   Print rule title, MITRE ID extracted, first 3 lines of XML.
+
+2. **Stage 2 — Alert enrichment:** Load `tools/fixtures/sample_enriched.json`. Construct one `Alert`
+   from the first record (T1046 entry). Call `enrich_alert()`. Print risk label and MITRE description.
+
+3. **Stage 3 — Report generation:** Call `generate_report()` with all fixture records.
+   Print first 15 lines of generated Markdown.
+
+**End summary block:**
+```
+Pipeline demo complete.
+Stage 1: Sigma → Wazuh XML  [PASS]
+Stage 2: Alert enrichment    [PASS]
+Stage 3: Report generation   [PASS]
+```
+
+**Inline comment required at top of file:**
+`# Offline-only by design — see ADR-0002. No new architecture.`
+(ADR-0003 is NOT needed — pipeline_demo.py wraps existing APIs; offline constraint is from ADR-0002.)
+
+**Tests in `tools/tests/test_pipeline_demo.py`:**
+1. `test_pipeline_demo_runs` — calls `main()`, asserts exit code 0
+2. `test_pipeline_demo_stage1_produces_xml` — stage 1 logic, asserts XML contains `<rule>`
+3. `test_pipeline_demo_stage3_contains_summary` — stage 3 output contains `## Summary`
+
+**Files allowed to change**
+- `tools/pipeline_demo.py` (new, ~90–110 LOC)
+- `tools/tests/test_pipeline_demo.py` (new, ~40–55 LOC)
+
+**Exception:** ~150 net LOC across both files (slightly over C-002 guideline). Exception documented here;
+splitting would create an untested-script PR. Mirrors TASK-009 exception precedent.
+
+**Forbidden changes**
+- No changes to `sigma_convert.py`, `enrich_alerts.py`, or `report.py`
+- No `import requests`, no `os.environ` reads, no network calls
+- No new dependencies to `pyproject.toml`
+
+**Acceptance Criteria**
+- `uv run python tools/pipeline_demo.py` exits 0 with no env vars, prints 3 `[PASS]` lines
+- `uv run nox -s test` passes (53 tests green)
+- `uv run nox -s fmt lint type` passes (ruff + pyright clean)
+
+**DoD checklist**
+- [ ] `tools/pipeline_demo.py` exists
+- [ ] `tools/tests/test_pipeline_demo.py` exists with 3 tests
+- [ ] `uv run python tools/pipeline_demo.py` → exits 0, 3 [PASS] lines
+- [ ] `uv run nox -s test` → 53 tests green
+- [ ] `uv run nox -s fmt lint type` → clean
+- [ ] No env vars, no network calls, no new deps
+
+**Verification commands**
+- `uv run python tools/pipeline_demo.py`
+- `uv run python tools/pipeline_demo.py | grep "\[PASS\]" | wc -l`
+- `uv run nox -s test`
+- `uv run nox -s fmt lint type`

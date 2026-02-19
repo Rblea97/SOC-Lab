@@ -1,7 +1,7 @@
 # ADR-0002: Detection Engineering Pipeline as Phase 2 Portfolio Differentiator
 
 ## Status
-Proposed
+Accepted
 
 ## Context
 After Phase 1 (MPS alignment, TASK-001–007), the lab has:

@@ -1,8 +1,9 @@
 # CURRENT_STATE — SOC_LAB (Memory Keeper Snapshot)
 
 **Generated:** 2026-02-19
-**Phase 1 status:** COMPLETE (TASK-001–007 implemented; staged, NOT yet committed)
-**Phase 2 status:** COMPLETE (TASK-008–012 implemented; untracked, pending commit)
+**Phase 1 status:** COMPLETE (TASK-001–007 committed)
+**Phase 2 status:** COMPLETE (TASK-008–012 committed)
+**Phase 3 status:** PLANNED (TASK-013–020 defined; none started)
 
 ---
 
@@ -16,7 +17,7 @@
 | ADR-0001 (uv+nox parity) | `docs/adr/ADR-0001-root-nox-uv-parity-and-deterministic-audit.md` |
 | ADR-0002 (detection pipeline) | `docs/adr/ADR-0002-detection-engineering-pipeline-phase-2.md` ✅ ACCEPTED |
 | README.md | `README.md` (root, 99 lines, 7 sections, CI badge) ⚠️ UNTRACKED |
-| Session contract | `.claude.md` |
+| Session contract | `CLAUDE.md` (renamed from `.claude.md`; now auto-loads in Claude Code) |
 
 ---
 
@@ -33,22 +34,20 @@
 ### What was implemented (staged, uncommitted)
 | Task | File(s) | Status |
 |---|---|---|
-| TASK-001 | `.gitignore` hardened; `.venv/`, caches, `*.pyc` untracked | ✅ staged |
-| TASK-002 | `.claude.md` (root session contract, ~55 lines) | ✅ staged |
-| TASK-003 | `noxfile.py` (root, sessions: fmt/lint/type/test/audit/all) | ✅ staged |
-| TASK-004 | `pyproject.toml` + nox `type` session uses pyright | ✅ staged |
-| TASK-005 | `requirements-audit.txt` generated; `nox audit` deterministic | ✅ staged |
-| TASK-006 | `.pre-commit-config.yaml` updated (pyright + artifact guards) | ✅ staged |
-| TASK-007 | `.github/workflows/ci.yml` runs `uv run nox -s all` | ✅ staged |
+| TASK-001 | `.gitignore` hardened; `.venv/`, caches, `*.pyc` untracked | ✅ committed |
+| TASK-002 | `CLAUDE.md` (root session contract, ~55 lines) | ✅ committed |
+| TASK-003 | `noxfile.py` (root, sessions: fmt/lint/type/test/audit/all) | ✅ committed |
+| TASK-004 | `pyproject.toml` + nox `type` session uses pyright | ✅ committed |
+| TASK-005 | `requirements-audit.txt` generated; `nox audit` deterministic | ✅ committed |
+| TASK-006 | `.pre-commit-config.yaml` updated (pyright + artifact guards) | ✅ committed |
+| TASK-007 | `.github/workflows/ci.yml` runs `uv run nox -s all` | ✅ committed |
 
 ### Staged deletions (expected)
 `README.md` (old), `CLAUDE.md`, `Makefile`, `spec.md`, `CONTRIBUTING.md`, `LICENSE`, `SECURITY.md`
 > NOTE: Old `README.md` deletion is intentional — TASK-012 rebuilt it at repo root (99 lines). New `README.md` is untracked and will replace the deleted one on commit.
 
-### Outstanding items (pending commit)
-1. **Commit Phase 1 staged changes** (all of the above + ADR-0002 untracked file).
-2. `docs/TASKS.md`, `docs/SPECS.md`, `docs/PLAN.md` have working-tree modifications (AM status) — stage and commit those too.
-3. **Commit Phase 2 untracked files:** `README.md`, `tools/report.py`, `tools/sigma/` (01–05), `tools/fixtures/sample_enriched.json`, `tools/fixtures/sample_enriched.md`, `tools/tests/test_pipeline.py`, `tools/tests/test_report.py`.
+### Outstanding items
+- None. All Phase 1 changes committed.
 
 ### Known gaps
 - IR reports exist **only for scenario 02** (`docs/ir-report-ssh-brute-force.md`). Scenarios 01, 03, 04, 05 have no IR report yet.
@@ -76,13 +75,13 @@ All stages run **offline via fixtures**; testable via `uv run nox -s test`.
 | `sigma_convert.py` | `tools/sigma_convert.py` | ✅ EXISTS — 5 Sigma YAMLs in `tools/sigma/` (TASK-008) |
 | `enrich_alerts.py` | `tools/enrich_alerts.py` | ✅ EXISTS — `--output` JSON flag added (TASK-009) |
 | `demo_enrich.py` | `tools/demo_enrich.py` | ✅ EXISTS — offline fixture mode implemented (TASK-009) |
-| `report.py` | `tools/report.py` | ✅ EXISTS — `generate_report` + main (TASK-010) ⚠️ UNTRACKED |
-| `tools/sigma/` | `tools/sigma/` (01–05 YAMLs) | ✅ EXISTS (TASK-008) ⚠️ UNTRACKED |
-| `tools/fixtures/sample_enriched.json` | `tools/fixtures/sample_enriched.json` | ✅ EXISTS (TASK-009) ⚠️ UNTRACKED |
-| `tools/fixtures/sample_enriched.md` | `tools/fixtures/sample_enriched.md` | ✅ EXISTS (TASK-010 output) ⚠️ UNTRACKED |
-| `tools/tests/test_pipeline.py` | `tools/tests/test_pipeline.py` | ✅ EXISTS — 14 integration tests (TASK-011) ⚠️ UNTRACKED |
-| `tools/tests/test_report.py` | `tools/tests/test_report.py` | ✅ EXISTS — 6 tests (TASK-010) ⚠️ UNTRACKED |
-| `README.md` | `README.md` (repo root, 99 lines) | ✅ EXISTS (TASK-012) ⚠️ UNTRACKED |
+| `report.py` | `tools/report.py` | ✅ committed (TASK-010) |
+| `tools/sigma/` | `tools/sigma/` (01–05 YAMLs) | ✅ committed (TASK-008) |
+| `tools/fixtures/sample_enriched.json` | `tools/fixtures/sample_enriched.json` | ✅ committed (TASK-009) |
+| `tools/fixtures/sample_enriched.md` | `tools/fixtures/sample_enriched.md` | ✅ committed (TASK-010 output) |
+| `tools/tests/test_pipeline.py` | `tools/tests/test_pipeline.py` | ✅ committed — 14 integration tests (TASK-011) |
+| `tools/tests/test_report.py` | `tools/tests/test_report.py` | ✅ committed — 6 tests (TASK-010) |
+| `README.md` | `README.md` (repo root, 99 lines) | ✅ committed (TASK-012) |
 
 **Full suite:** `uv run nox -s fmt lint type test` → green, **50 tests passing**.
 
@@ -162,8 +161,47 @@ uv export --frozen --no-dev --output-file requirements-audit.txt
 
 ---
 
+## Phase 3 — Portfolio Completion (TASK-013–020)
+
+**Status: PLANNED** — None started. Execute in order listed.
+
+### Phase 3 task inventory
+
+| Task | Subject | Target file(s) | Status |
+|---|---|---|---|
+| TASK-020 | Update planning docs + CLAUDE.md rename | `CLAUDE.md`, `docs/TASKS.md`, `docs/SPECS.md`, `docs/CURRENT_STATE.md`, `docs/adr/ADR-0002-*.md` | ✅ DONE (this session) |
+| TASK-013 | IR report: Nmap Recon | `docs/ir-report-nmap-recon.md` (new) | 🔲 pending |
+| TASK-014 | IR report: vsftpd Exploit | `docs/ir-report-vsftpd-exploit.md` (new) | 🔲 pending |
+| TASK-015 | IR report: Priv Escalation | `docs/ir-report-priv-escalation.md` (new) | 🔲 pending |
+| TASK-016 | IR report: Suspicious File | `docs/ir-report-suspicious-file.md` (new) | 🔲 pending |
+| TASK-017 | Update portfolio-writeup.md | `docs/portfolio-writeup.md` (modify) | 🔲 pending |
+| TASK-018 | ATT&CK Navigator layer | `docs/attack-coverage.json` (new) | 🔲 pending |
+| TASK-019 | End-to-end pipeline demo | `tools/pipeline_demo.py` (new), `tools/tests/test_pipeline_demo.py` (new) | 🔲 pending |
+
+### Execution order
+```
+TASK-020 (done) → TASK-013, TASK-014, TASK-015, TASK-016 (any order, independent)
+                → TASK-018 (independent)
+                → TASK-019 (independent, longest — do when fresh)
+                → TASK-017 (after 013–016 so all IR filenames can be cited)
+```
+
+### Known gaps (Phase 3 starting point)
+- IR reports exist **only for scenario 02** (`docs/ir-report-ssh-brute-force.md` as IR-2026-002)
+- `docs/portfolio-writeup.md`: stale `make` commands, "26 tests", "two Python utilities", `mypy`
+- No `docs/attack-coverage.json` Navigator layer
+- No `tools/pipeline_demo.py` (full pipeline demo)
+
+### Phase 3 DoD gate (applies to every task)
+```bash
+uv run nox -s all
+```
+Documentation-only tasks (013–018, 020) pass trivially. TASK-019 must also pass `fmt lint type test`.
+
+---
+
 ## Constraints (carry forward)
 - C-001/C-P2-001: 30–90 min per task
-- C-002/C-P2-002: <=150 LOC net per task (TASK-009 exception: ~160 LOC documented)
-- C-003: structural changes require ADR + regenerated TASKS
+- C-002/C-P2-002: <=150 LOC net per task (TASK-009 exception: ~160 LOC documented; TASK-019 exception: ~150 LOC across script + tests, documented)
+- C-003: structural changes require ADR + regenerated TASKS (no ADR needed for Phase 3 — see TASK-019)
 - NFR-S-001: secrets never committed; `.env.example` is template-only
