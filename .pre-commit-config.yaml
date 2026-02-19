@@ -1,19 +1,28 @@
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.10.2
     hooks:
-      - id: check-yaml
-      - id: end-of-file-fixer
-      - id: trailing-whitespace
+      - id: uv-lock
+      - id: uv-export
+        args: ["--frozen", "--no-dev", "--output-file", "requirements-audit.txt"]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.9.10
     hooks:
       - id: ruff
         args: [--fix]
-        files: ^tools/.*\.py$
+        files: ^(tools/.*\.py|noxfile\.py)$
       - id: ruff-format
-        files: ^tools/.*\.py$
+        files: ^(tools/.*\.py|noxfile\.py)$
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
 
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.24.0
