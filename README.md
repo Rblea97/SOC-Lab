@@ -23,16 +23,10 @@
 git clone git@github.com:Rblea97/SOC-Lab.git
 cd SOC-Lab
 
-# 1. Enrich alerts offline (zero env vars needed)
-uv run python tools/demo_enrich.py
+# Run the full detection pipeline (Sigma → XML → enrichment → IR report → triage)
+uv run python tools/pipeline_demo.py
 
-# 2. Score triage priority
-uv run python tools/triage.py tools/fixtures/sample_enriched.json
-
-# 3. Generate detection coverage report
-uv run python tools/detect_metrics.py
-
-# 4. Run the full quality gate suite
+# Run the quality gate suite (fmt, lint, type, test, audit) — matches CI exactly
 uv run nox -s all
 ```
 
