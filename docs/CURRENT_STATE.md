@@ -3,7 +3,7 @@
 **Generated:** 2026-02-19
 **Phase 1 status:** COMPLETE (TASK-001–007 committed)
 **Phase 2 status:** COMPLETE (TASK-008–012 committed)
-**Phase 3 status:** PLANNED (TASK-013–020 defined; none started)
+**Phase 3 status:** COMPLETE (TASK-013–020 committed)
 
 ---
 
@@ -83,7 +83,7 @@ All stages run **offline via fixtures**; testable via `uv run nox -s test`.
 | `tools/tests/test_report.py` | `tools/tests/test_report.py` | ✅ committed — 6 tests (TASK-010) |
 | `README.md` | `README.md` (repo root, 99 lines) | ✅ committed (TASK-012) |
 
-**Full suite:** `uv run nox -s fmt lint type test` → green, **50 tests passing**.
+**Full suite:** `uv run nox -s fmt lint type test` → green, **53 tests passing**.
 
 Note: `tools/fixtures/sample_alerts.json` EXISTS (pre-existing fixture, different schema from Phase 2 enriched JSON).
 
@@ -163,20 +163,20 @@ uv export --frozen --no-dev --output-file requirements-audit.txt
 
 ## Phase 3 — Portfolio Completion (TASK-013–020)
 
-**Status: PLANNED** — None started. Execute in order listed.
+**Status: COMPLETE** — All tasks done and committed.
 
 ### Phase 3 task inventory
 
 | Task | Subject | Target file(s) | Status |
 |---|---|---|---|
 | TASK-020 | Update planning docs + CLAUDE.md rename | `CLAUDE.md`, `docs/TASKS.md`, `docs/SPECS.md`, `docs/CURRENT_STATE.md`, `docs/adr/ADR-0002-*.md` | ✅ DONE (this session) |
-| TASK-013 | IR report: Nmap Recon | `docs/ir-report-nmap-recon.md` (new) | 🔲 pending |
-| TASK-014 | IR report: vsftpd Exploit | `docs/ir-report-vsftpd-exploit.md` (new) | 🔲 pending |
-| TASK-015 | IR report: Priv Escalation | `docs/ir-report-priv-escalation.md` (new) | 🔲 pending |
-| TASK-016 | IR report: Suspicious File | `docs/ir-report-suspicious-file.md` (new) | 🔲 pending |
-| TASK-017 | Update portfolio-writeup.md | `docs/portfolio-writeup.md` (modify) | 🔲 pending |
-| TASK-018 | ATT&CK Navigator layer | `docs/attack-coverage.json` (new) | 🔲 pending |
-| TASK-019 | End-to-end pipeline demo | `tools/pipeline_demo.py` (new), `tools/tests/test_pipeline_demo.py` (new) | 🔲 pending |
+| TASK-013 | IR report: Nmap Recon | `docs/ir-report-nmap-recon.md` (new) | ✅ DONE |
+| TASK-014 | IR report: vsftpd Exploit | `docs/ir-report-vsftpd-exploit.md` (new) | ✅ DONE |
+| TASK-015 | IR report: Priv Escalation | `docs/ir-report-priv-escalation.md` (new) | ✅ DONE |
+| TASK-016 | IR report: Suspicious File | `docs/ir-report-suspicious-file.md` (new) | ✅ DONE |
+| TASK-017 | Update portfolio-writeup.md | `docs/portfolio-writeup.md` (modify) | ✅ DONE |
+| TASK-018 | ATT&CK Navigator layer | `docs/attack-coverage.json` (new) | ✅ DONE |
+| TASK-019 | End-to-end pipeline demo | `tools/pipeline_demo.py` (new), `tools/tests/test_pipeline_demo.py` (new) | ✅ DONE |
 
 ### Execution order
 ```

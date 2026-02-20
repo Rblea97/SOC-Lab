@@ -66,39 +66,64 @@ All rules live in `wazuh-config/local_rules.xml`; the decoder is in `wazuh-confi
 
 ---
 
+## Detection Engineering Pipeline
+
+Five Sigma YAML rules feed a fully offline pipeline that produces enriched JSON and a Markdown IR summary:
+
+```
+tools/sigma/*.yml  →  sigma_convert.py  →  Wazuh XML
+                                              ↓
+                               (deployed to wazuh-config/local_rules.xml)
+                                              ↓
+                          Wazuh alert  →  enrich_alerts.py  →  enriched JSON
+                                              ↓
+                                        report.py  →  Markdown IR summary
+```
+
+All stages run with no live VMs via `tools/fixtures/sample_enriched.json`. IR reports for each
+scenario live in `docs/ir-report-*.md` (IR-2026-001 through IR-2026-005). ATT&CK coverage is
+documented in `docs/attack-coverage.json` (Navigator 4.x layer, ATT&CK v15).
+
+---
+
 ## Python Tooling
 
-Two Python utilities in `tools/` support analyst workflows without requiring the VMs to be running:
-
-**`enrich_alerts.py`** — Takes a Wazuh JSON alert, maps the rule ID to its MITRE ATT&CK technique,
-computes a risk tier (`critical` / `high` / `medium` / `low`), and returns a structured triage report.
-Designed as a building block for SOAR playbooks or Jupyter-based triage notebooks.
+Four Python utilities in `tools/` support analyst workflows without requiring the VMs to be running:
 
 **`sigma_convert.py`** — Converts a Sigma detection rule (YAML) into a Wazuh-compatible XML rule
 fragment. Lets analysts write detections in the portable Sigma format and deploy them without
 hand-crafting Wazuh XML.
 
-Both utilities are fully typed, lint-clean, and covered by 26 pytest tests. Run the enrichment
+**`enrich_alerts.py`** — Takes a Wazuh JSON alert, maps the rule ID to its MITRE ATT&CK technique,
+computes a risk tier (`critical` / `high` / `medium` / `low`), and returns a structured triage report.
+Supports `--output <file>` to write enriched JSON for downstream processing.
+
+**`demo_enrich.py`** — Offline demo: loads `tools/fixtures/sample_enriched.json` and prints a
+human-readable triage report with no env vars or network calls.
+
+**`report.py`** — Reads enriched JSON and writes a structured Markdown IR summary with Summary,
+Alert Table, MITRE Techniques, and Recommended Triage Actions sections.
+
+All four utilities are fully typed, lint-clean, and covered by 50 pytest tests. Run the enrichment
 pipeline against five sample alerts with no VMs:
 
 ```bash
-make bootstrap   # one-time venv setup
-make demo        # replay 5 alerts → enriched triage report
+uv run python tools/demo_enrich.py
 ```
 
 ---
 
 ## Code Quality
 
-The `tools/` module is held to a consistent quality bar enforced by `make verify`:
+The `tools/` module is held to a consistent quality bar enforced by `uv run nox -s all`:
 
 - **Ruff** — format check + lint (PEP 8, import order, common anti-patterns)
-- **MyPy** — strict static type checking
-- **PyTest** — 26 unit + integration tests; all passing
+- **Pyright** — strict static type checking
+- **PyTest** — 50 unit + integration tests; all passing
 
 CI runs the same gate automatically on every push and pull request via GitHub Actions
-(`.github/workflows/ci.yml`). The pipeline also runs ShellCheck on all shell scripts and
-Gitleaks to prevent accidental credential commits.
+(`.github/workflows/ci.yml`): `uv run nox -s all`. The pipeline also runs ShellCheck on all
+shell scripts and Gitleaks to prevent accidental credential commits.
 
 ---
 
@@ -110,8 +135,13 @@ Gitleaks to prevent accidental credential commits.
   to minimize false positives
 - **ATT&CK mapping** — aligned every detection to a MITRE technique; documented in rules and evidence
 - **Alert triage** — validated 5/5 scenarios end-to-end; captured raw event, rule match, and risk context
-- **Security automation** — built alert enrichment and Sigma converter as tested Python modules
-- **Code quality** — Ruff, MyPy, PyTest, GitHub Actions CI; zero lint/type errors
+- **Security automation** — built 4-tool detection engineering pipeline (Sigma→XML→enrich→report);
+  fully offline and testable with no VMs
+- **Incident reporting** — produced 5 structured IR reports (IR-2026-001 through IR-2026-005)
+  covering every scenario; each includes timeline, MITRE mapping, evidence table, and compliance refs
+- **ATT&CK coverage** — documented all 5 detected techniques in a Navigator 4.x layer
+  (`docs/attack-coverage.json`, ATT&CK v15)
+- **Code quality** — Ruff, Pyright, PyTest (50 tests), GitHub Actions CI; zero lint/type errors
 - **Documentation** — runbook, credentials template, per-scenario evidence matrix, operator guide
 
 ---

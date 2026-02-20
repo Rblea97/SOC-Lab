@@ -1,0 +1,101 @@
+{
+  "name": "SOC_LAB Coverage",
+  "versions": {
+    "attack": "15",
+    "navigator": "4.9",
+    "layer": "4.5"
+  },
+  "domain": "enterprise-attack",
+  "description": "ATT&CK technique coverage for SOC_LAB detection scenarios (Wazuh SIEM, 5 scenarios, 2026-02-14).",
+  "filters": {
+    "platforms": [
+      "Linux"
+    ]
+  },
+  "sorting": 0,
+  "layout": {
+    "layout": "side",
+    "aggregateFunction": "average",
+    "showID": false,
+    "showName": true,
+    "showAggregateScores": false,
+    "countUnscored": false
+  },
+  "hideDisabled": false,
+  "techniques": [
+    {
+      "techniqueID": "T1046",
+      "tactic": "discovery",
+      "color": "#ff6666",
+      "comment": "Scenario 01: Nmap SSH probe detected by rule 100011 (custom composite frequency, 72s latency). Source 192.168.10.11 → target 192.168.10.13.",
+      "enabled": true,
+      "metadata": [],
+      "links": [],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1110.001",
+      "tactic": "credential-access",
+      "color": "#ff6666",
+      "comment": "Scenario 02: Hydra brute force against SSH, rules 5763/100002 (built-in, 126s latency). Source 192.168.10.11 → target 192.168.10.12.",
+      "enabled": true,
+      "metadata": [],
+      "links": [],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1190",
+      "tactic": "initial-access",
+      "color": "#ff6666",
+      "comment": "Scenario 03: vsftpd CVE-2011-2523 backdoor exploit, rule 2501 (built-in syslog PAM, 192s latency — indirect detection).",
+      "enabled": true,
+      "metadata": [],
+      "links": [],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1548.003",
+      "tactic": "privilege-escalation",
+      "color": "#ff9900",
+      "comment": "Scenario 04: sudo abuse (systemctl start ssh), rule 5402 (built-in, level 3, 7s latency). Orange reflects lower rule severity vs. other scenarios.",
+      "enabled": true,
+      "metadata": [],
+      "links": [],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1505.003",
+      "tactic": "persistence",
+      "color": "#ff6666",
+      "comment": "Scenario 05: PHP web shell /tmp/reverse_shell.php, rule 100003 (custom FIM syscheck realtime, 71s latency).",
+      "enabled": true,
+      "metadata": [],
+      "links": [],
+      "showSubtechniques": false
+    }
+  ],
+  "gradient": {
+    "colors": [
+      "#ff6666ff",
+      "#ffffffff"
+    ],
+    "minValue": 0,
+    "maxValue": 100
+  },
+  "legendItems": [
+    {
+      "label": "Detected (High severity)",
+      "color": "#ff6666"
+    },
+    {
+      "label": "Detected (Low severity — see notes)",
+      "color": "#ff9900"
+    }
+  ],
+  "metadata": [],
+  "links": [],
+  "showTacticRowBackground": false,
+  "tacticRowBackground": "#dddddd",
+  "selectTechniquesAcrossTactics": true,
+  "selectSubtechniquesWithParent": false
+}
