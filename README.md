@@ -2,9 +2,16 @@
 
 # SOC Lab
 
-> **End-to-end detection engineering lab** — 5 adversary attack chains, Wazuh SIEM, and a fully tested Python pipeline that converts Sigma rules to Wazuh XML, enriches alerts, scores triage priority, and generates IR reports. Everything runs offline via fixtures; 85 tests pass in CI with a single command: `uv run nox -s all`.
+At 01:11 UTC, Wazuh fired rule 5763 — *brute force trying to get access to the system* — 36 times in 45 seconds. I triaged by correlating 4 parallel Hydra sessions across distinct PIDs, confirmed no credential was obtained by verifying that **rule 100002 did not fire**, and closed the incident as *No Compromise*. That workflow — alert, correlation, containment decision — is what this lab is built to practice and document.
 
 ![Pipeline demo](docs/demo.gif)
+
+## What This Lab Demonstrates
+
+- **Alert → triage → investigation → containment** — end-to-end analyst workflow, not just rule deployment
+- **Detection engineering decisions** — why thresholds were tuned, how a custom decoder solved a real normalization gap, when a rule *correctly* does not fire
+- **Validated evidence** — 5 attack scenarios with machine-readable JSON alert snapshots, hashes, timestamps, and detection latencies
+- **Analyst tooling** — Python enrichment pipeline (risk scoring + MITRE context) and Sigma converter, tested and CI-gated
 
 ## Skills at a Glance
 
@@ -30,11 +37,7 @@ uv run python tools/pipeline_demo.py
 uv run nox -s all
 ```
 
-## 1. Overview
-
-This lab provisions a 4-VM virtual network (Kali attacker, Metasploitable 2 target, Wazuh manager, and Ubuntu analyst) to replicate realistic SOC triage workflows. Five attack scenarios are scripted end-to-end: from adversary command through Wazuh detection, alert enrichment, and IR report generation. All tooling runs offline without live credentials, making every gate reproducible in CI.
-
-## 2. Architecture
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -54,17 +57,21 @@ This lab provisions a 4-VM virtual network (Kali attacker, Metasploitable 2 targ
 └─────────────────────────────────────────────────────┘
 ```
 
-## 3. Detection Scenarios
+## Detection Scenarios
 
-| # | Scenario | Attack | MITRE Technique | Wazuh Rule | Status |
-|---|---|---|---|---|---|
-| 01 | [Nmap Recon](docs/attack-scenarios/01-nmap-recon.md) | Network service scan | T1046 | 100011 | VALIDATED |
-| 02 | [SSH Brute Force](docs/attack-scenarios/02-ssh-brute-force.md) | Password guessing | T1110.001 | 5763 | VALIDATED |
-| 03 | [Metasploit vsftpd](docs/attack-scenarios/03-metasploit-vsftpd.md) | Exploit public-facing app | T1190 | 2501 | VALIDATED |
-| 04 | [Privilege Escalation](docs/attack-scenarios/04-priv-escalation.md) | Sudo abuse | T1548.003 | 5402 | VALIDATED |
-| 05 | [Suspicious File](docs/attack-scenarios/05-suspicious-file.md) | Web shell drop | T1505.003 | 100003 | VALIDATED |
+| # | Scenario | MITRE | Rule | Ingestion | Latency | Status |
+|---|---|---|---|---|---|---|
+| 01 | [Nmap Recon](docs/attack-scenarios/01-nmap-recon.md) | T1046 | 100011 (custom) | Syslog / MS-2 | 72 s | VALIDATED |
+| 02 | [SSH Brute Force](docs/attack-scenarios/02-ssh-brute-force.md) | T1110.001 | 5763 (built-in) | Agent / journald | 126 s | VALIDATED |
+| 03 | [Metasploit vsftpd](docs/attack-scenarios/03-metasploit-vsftpd.md) | T1190 | 2501 (built-in) | Syslog / MS-2 | 192 s | VALIDATED |
+| 04 | [Privilege Escalation](docs/attack-scenarios/04-priv-escalation.md) | T1548.003 | 5402 (built-in) | Agent / journald | **7 s** | VALIDATED |
+| 05 | [Suspicious File](docs/attack-scenarios/05-suspicious-file.md) | T1505.003 | 100003 (custom) | Agent / syscheck | 71 s | VALIDATED |
 
-## 4. Detection Engineering Pipeline
+Agent-based ingestion (scenario 04) achieved **7-second** detection. Syslog-forwarded events (scenarios 01, 03) measured 72–192 seconds — a 10–27× gap that reflects a real production tradeoff between legacy host coverage and detection speed.
+
+For triage logic applied to each rule — what I check next, malicious vs. benign reasoning, and when to escalate — see [docs/triage-methodology.md](docs/triage-methodology.md).
+
+## Detection Engineering Pipeline
 
 ```
 tools/sigma/*.yml          (Sigma detection rules, one per scenario)
@@ -92,7 +99,7 @@ Detection coverage is tracked via `tools/detect_metrics.py` against the ATT&CK N
 
 All stages are testable offline: `uv run nox -s test` runs 85 tests without a live Wazuh instance.
 
-## 5. Gates
+## Gates
 
 ```bash
 # Full suite (local == CI)
@@ -104,7 +111,7 @@ pre-commit run --all-files
 
 Gates run in order: `fmt` (ruff) → `lint` (ruff) → `type` (pyright) → `test` (pytest) → `audit` (pip-audit).
 
-## 6. Evidence
+## Evidence
 
 Validated alert captures are stored per scenario in `evidence/`:
 
