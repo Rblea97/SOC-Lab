@@ -2,7 +2,39 @@
 
 # SOC Lab
 
-A hands-on security operations lab that simulates five adversary attack chains against a Metasploitable 2 target, detected by Wazuh, and processed through an end-to-end detection engineering pipeline. Each scenario produces a Sigma rule, a Wazuh XML alert rule, enriched JSON output, and a Markdown IR report — all verifiable offline via fixtures.
+> **End-to-end detection engineering lab** — 5 adversary attack chains, Wazuh SIEM, and a fully tested Python pipeline that converts Sigma rules to Wazuh XML, enriches alerts, scores triage priority, and generates IR reports. Everything runs offline via fixtures; 85 tests pass in CI with a single command: `uv run nox -s all`.
+
+![Pipeline demo](docs/demo.gif)
+
+## Skills at a Glance
+
+| Domain | Tools / Techniques |
+|---|---|
+| Threat detection | Wazuh SIEM, Sigma rules, ATT&CK Navigator |
+| Detection engineering | Sigma→Wazuh XML conversion, alert enrichment, triage scoring, coverage metrics |
+| Adversary simulation | Nmap, Hydra, Metasploit (vsftpd CVE-2011-2523), sudo abuse, web-shell FIM |
+| Quality gates | ruff, pyright, pytest, pip-audit, nox, pre-commit, GitHub Actions CI |
+| Incident response | IR reports (5 scenarios), ATT&CK layer, detection-coverage.md |
+
+## Quick Demo
+
+```bash
+# Requires: Python 3.11+, uv (https://docs.astral.sh/uv/)
+git clone git@github.com:Rblea97/SOC-Lab.git
+cd SOC-Lab
+
+# 1. Enrich alerts offline (zero env vars needed)
+uv run python tools/demo_enrich.py
+
+# 2. Score triage priority
+uv run python tools/triage.py tools/fixtures/sample_enriched.json
+
+# 3. Generate detection coverage report
+uv run python tools/detect_metrics.py
+
+# 4. Run the full quality gate suite
+uv run nox -s all
+```
 
 ## 1. Overview
 
@@ -53,26 +85,20 @@ Wazuh alert (live) or tools/fixtures/sample_enriched.json (offline)
 tools/enrich_alerts.py     (adds risk_label + mitre_description)
         │
         ▼
+tools/triage.py            (scores triage priority P1–P4)
+        │
+        ▼
 tools/report.py            (generates Markdown IR summary)
         │
         ▼
 docs/ir-report-*.md        (incident response report)
 ```
 
-All stages are testable offline: `uv run nox -s test` runs 50 tests without a live Wazuh instance.
+Detection coverage is tracked via `tools/detect_metrics.py` against the ATT&CK Navigator layer in `docs/attack-coverage.json`.
 
-## 5. Quick Start
+All stages are testable offline: `uv run nox -s test` runs 85 tests without a live Wazuh instance.
 
-```bash
-# Requires: Python 3.11+, uv (https://docs.astral.sh/uv/)
-git clone git@github.com:Rblea97/SOC-Lab.git
-cd SOC-Lab
-
-# Run the enrichment demo (offline, zero env vars needed)
-uv run python tools/demo_enrich.py
-```
-
-## 6. Gates
+## 5. Gates
 
 ```bash
 # Full suite (local == CI)
@@ -84,16 +110,17 @@ pre-commit run --all-files
 
 Gates run in order: `fmt` (ruff) → `lint` (ruff) → `type` (pyright) → `test` (pytest) → `audit` (pip-audit).
 
-## 7. Evidence
+## 6. Evidence
 
 Validated alert captures are stored per scenario in `evidence/`:
 
 | Scenario | Evidence | IR Report |
 |---|---|---|
-| 01 Nmap Recon | [evidence/scenario-01-nmap/result.json](evidence/scenario-01-nmap/result.json) | — |
+| 01 Nmap Recon | [evidence/scenario-01-nmap/result.json](evidence/scenario-01-nmap/result.json) | [docs/ir-report-nmap-recon.md](docs/ir-report-nmap-recon.md) |
 | 02 SSH Brute Force | [evidence/scenario-02-brute-force/result.json](evidence/scenario-02-brute-force/result.json) | [docs/ir-report-ssh-brute-force.md](docs/ir-report-ssh-brute-force.md) |
-| 03 Metasploit vsftpd | [evidence/scenario-03-vsftpd/result.json](evidence/scenario-03-vsftpd/result.json) | — |
-| 04 Priv Escalation | [evidence/scenario-04-priv-esc/result.json](evidence/scenario-04-priv-esc/result.json) | — |
-| 05 Suspicious File | [evidence/scenario-05-suspicious-file/result.json](evidence/scenario-05-suspicious-file/result.json) | — |
+| 03 Metasploit vsftpd | [evidence/scenario-03-vsftpd/result.json](evidence/scenario-03-vsftpd/result.json) | [docs/ir-report-vsftpd-exploit.md](docs/ir-report-vsftpd-exploit.md) |
+| 04 Priv Escalation | [evidence/scenario-04-priv-esc/result.json](evidence/scenario-04-priv-esc/result.json) | [docs/ir-report-priv-escalation.md](docs/ir-report-priv-escalation.md) |
+| 05 Suspicious File | [evidence/scenario-05-suspicious-file/result.json](evidence/scenario-05-suspicious-file/result.json) | [docs/ir-report-suspicious-file.md](docs/ir-report-suspicious-file.md) |
 
 Enriched fixture (offline): [tools/fixtures/sample_enriched.json](tools/fixtures/sample_enriched.json)
+Detection coverage: [docs/detection-coverage.md](docs/detection-coverage.md)
