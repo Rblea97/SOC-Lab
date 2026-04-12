@@ -13,7 +13,7 @@ dev = [
     "pytest>=7.4",
     "mypy>=1.5",
     "ruff>=0.4",
-    "types-requests>=2.31",
+    "types-requests>=2.33.0.20260408",
     "types-PyYAML>=6.0",
     "pip-audit>=2.7",
 ]
